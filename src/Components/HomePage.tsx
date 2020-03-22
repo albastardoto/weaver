@@ -1,71 +1,80 @@
+import { Button, Grid, Container, Paper, TextField } from "@material-ui/core";
 import React, { Component } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import db from "../firestore/firestore";
-import {withRouter, RouteComponentProps} from "react-router-dom";
-import {Room} from "./RoomPage";
+import { connect } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router-dom";
+import { createRoom } from "../store/room/actions";
 
-type ownHomePageProps={
-  setRoomData:(roomData:Room)=>void;
-}
+import "./HomePage.css";
 
-type HomePageProps= ownHomePageProps & RouteComponentProps<{}>;
+type ownHomePageProps = {
+  createRoom: (code: string) => void;
+};
 
-class HomePage extends Component< HomePageProps,{}> {
-  constructor(props:HomePageProps){
+type HomePageProps = ownHomePageProps & RouteComponentProps<{}>;
+
+class HomePage extends Component<HomePageProps, {}> {
+  constructor(props: HomePageProps) {
     super(props);
-    this.createRoom= this.createRoom.bind(this);
+    this.startCreateRoom = this.startCreateRoom.bind(this);
   }
-
-
-
   public render() {
     return (
-      <Container>
-        <Row className="justify-content-center">
-          <Col md={10}>
-            <h2>Enter room code or create a new room</h2>
-          </Col>
-        </Row>
-        <Row className="justify-content-center">
-          <input type="text" name="code"></input>
-        </Row>
-        <Row className="justify-content-center mt-5">
-          <Col md={3}>
-            <Button block variant="primary">
-              Go to your room
-            </Button>
-          </Col>
-          <Col md={3}>
-            <Button onClick={this.createRoom} block variant="primary">
-              Create new room
-            </Button>
-          </Col>
-        </Row>
+      <Container className="HomePage">
+        <Paper elevation={3} className="main">
+          <Grid
+            container
+            direction="column"
+            justify="center"
+            alignItems="center"
+            spacing={3}
+          >
+            <Grid item xs={12}>
+              <h2>Enter room code or create a new room</h2>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField className="align-center" name="code"></TextField>
+            </Grid>
+            <Grid container direction="row" justify="center" spacing={3}>
+              <Grid item>
+                <Button variant="contained" color="primary">
+                  Go to your room
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={this.startCreateRoom.bind(this)}
+                >
+                  Create new room
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Paper>
       </Container>
     );
   }
-  createRoom() {
-    var result = "";
-    var characters =
+  startCreateRoom() {
+    let result = "";
+    const characters =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    var charactersLength = characters.length;
+    const charactersLength = characters.length;
     for (var i = 0; i < 6; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
-    db.collection("rooms")
-      .doc(result)
-      .set({
-        code: result
-      }).then(()=>{
-        console.log("room created succesfully");
-        this.props.setRoomData({name:result, code:result});
-        this.props.history.push("/room");
 
-      }).catch((error:any)=>{
-        console.error("Error creating room: ",error);
-      });
-    return result;
+    this.props.history.push("/room/" + result);
+    this.props.createRoom(result);
   }
-
 }
-export default withRouter(HomePage);
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    createRoom: (code: string) => {
+      dispatch(createRoom(code));
+    }
+  };
+};
+const connector = connect(null, mapDispatchToProps);
+export default connector(withRouter(HomePage));
