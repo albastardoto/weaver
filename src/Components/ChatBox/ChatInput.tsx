@@ -20,7 +20,11 @@ const ChatInput: FC<ChatInputProps> = (props: ChatInputProps) => {
           onChange={props.handleInputChange}
           value={props.inputValue}
         />
-        <IconButton className="ChatButton" onSubmit={props.handleSendMessage}>
+        <IconButton
+          className="ChatButton"
+          onSubmit={props.handleSendMessage}
+          onClick={props.handleSendMessage}
+        >
           <SendIcon />
         </IconButton>
       </form>

@@ -6,6 +6,10 @@ import ChatBox from "./ChatBox/ChatBox";
 import Suggestion, { SuggestionType } from "./Suggestion";
 import { createRoom } from "../store/room/actions";
 import { withRouter, RouteProps } from "react-router-dom";
+import { Button, Container } from "@material-ui/core";
+import { getSearchList } from "../store/room/suggestions/actions";
+import Search from "./Suggestions/Search";
+import { RootState } from "../store/store";
 
 export interface RoomPageProps extends RouteProps {
   roomData: Room;
@@ -22,7 +26,7 @@ class RoomPageComponent extends Component<RoomPageProps, RoomPageState> {
     this.state = {};
   }
   componentWillMount() {
-    if (this.props.roomData.code === undefined) {
+    if (this.props.roomData.code === "") {
       let code = this.props.location!.pathname;
       let urlLength = code.length;
       code = code.substr(urlLength - 6, urlLength);
@@ -32,24 +36,40 @@ class RoomPageComponent extends Component<RoomPageProps, RoomPageState> {
 
   public render() {
     return (
-      <Grid container spacing={0} direction="column" alignItems="center">
-        <h1>{this.props.roomData?.code}</h1>
-        <Grid item xs={8}>
-          {this.state.suggestions?.map(suggestion => {
-            return <Suggestion data={suggestion} />;
-          })}
+      <Container>
+        <Grid
+          container
+          spacing={0}
+          direction="row"
+          justify="center"
+          alignItems="flex-start"
+        >
+          <Grid item xs={12} className="text-justify">
+            <h1 className="text-center paddin p-3">
+              {this.props.roomData?.code}
+            </h1>
+          </Grid>
+          <Grid item xs={8}>
+            <Search />
+            {this.state.suggestions?.map(suggestion => {
+              return <Suggestion data={suggestion} />;
+            })}
+          </Grid>
+          {this.props.roomData?.code ? <ChatBox /> : ""}
         </Grid>
-        {this.props.roomData?.code ? <ChatBox /> : ""}
-      </Grid>
+      </Container>
     );
   }
   private submit(e: any) {
     console.log("hey");
     console.log(e);
   }
+  private search() {
+    getSearchList("");
+  }
 }
-const mapStateToProps = (state: RoomState) => {
-  return { roomData: state.room };
+const mapStateToProps = (state: RootState) => {
+  return { roomData: state.roomState.room };
 };
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return {

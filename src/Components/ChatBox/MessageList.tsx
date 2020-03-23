@@ -16,11 +16,11 @@ const MessageList: FC<MessageListProps> = (props: MessageListProps) => {
           .map((messageItem: Message) => {
             return (
               <MessageItem
-                key={messageItem.id}
                 message={messageItem.message}
                 user={messageItem.user}
                 id={messageItem.id}
                 timestamp={0}
+                key={messageItem.id}
               />
             );
           })}

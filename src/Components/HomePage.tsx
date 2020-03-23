@@ -36,7 +36,11 @@ class HomePage extends Component<HomePageProps, {}> {
             </Grid>
             <Grid container direction="row" justify="center" spacing={3}>
               <Grid item>
-                <Button variant="contained" color="primary">
+                <Button
+                  onClick={this.goToRoom.bind(this)}
+                  variant="contained"
+                  color="primary"
+                >
                   Go to your room
                 </Button>
               </Grid>
@@ -66,6 +70,9 @@ class HomePage extends Component<HomePageProps, {}> {
 
     this.props.history.push("/room/" + result);
     this.props.createRoom(result);
+  }
+  goToRoom() {
+    console.log("go to room");
   }
 }
 

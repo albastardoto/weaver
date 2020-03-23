@@ -1,0 +1,35 @@
+.MainSearchBox {
+  background-color: white;
+  border-radius: 5px;
+  width: 95%;
+  padding: 2px !important;
+  align-self:center;
+}
+.MainSearchBox .MuiInputLabel-root {
+  margin-left: 5px !important;
+}
+
+.SearchSuggestion{
+  background:#efefef;
+  color:black;
+  width:95%;
+  padding:10px;
+  align-self:center;
+}
+.SearchSuggestion img{
+  display:flex;
+}
+.SearchSuggestion h2{
+  font-size:23px;
+  display:flex;
+}
+.SearchSuggestionList .SearchSuggestion:last-child{
+  border-radius: 0px 0px 5px 5px;
+}
+.SearchSuggestion{
+  display:auto;
+}
+.MainSearchBox input:active .SearchSuggestion{
+  display:auto;
+  background-color:red;
+}

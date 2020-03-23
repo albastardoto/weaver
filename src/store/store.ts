@@ -4,6 +4,7 @@ import { chatReducer } from "./chat/reducer";
 import thunk, { ThunkAction } from "redux-thunk";
 import { roomReducer } from "./room/reducer";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
+import { suggestionsReducer } from "./room/suggestions/reducer";
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
   RootState,
@@ -13,9 +14,10 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 
 const composeEnhancers = composeWithDevTools({});
 const reducers = combineReducers({
+  suggestions: suggestionsReducer,
   system: systemReducer,
   chat: chatReducer,
-  room: roomReducer
+  roomState: roomReducer
 });
 
 export const store = createStore(

@@ -8,7 +8,7 @@ export interface Room {
 export interface RoomState {
   room: Room;
   chat?: ChatState;
-  fetchState: RoomFetchState;
+  fetchState?: RoomFetchState;
 }
 
 export interface RoomFetchState extends FetchState {

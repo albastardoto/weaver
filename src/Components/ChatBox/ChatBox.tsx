@@ -22,6 +22,12 @@ class ChatBox extends Component<Props, ChatBoxState> {
   componentWillMount() {
     this.props.startChatListener();
   }
+  componentDidUpdate() {
+    const chatList = document.getElementsByClassName("ChatList")[0];
+    if (chatList !== undefined) {
+      chatList.scrollTop = chatList.scrollHeight;
+    }
+  }
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -32,14 +38,16 @@ class ChatBox extends Component<Props, ChatBoxState> {
   }
   public render() {
     return (
-      <Grid container className="ChatBox">
-        <MessageList messages={this.props.chatState.messages} />
-        <ChatInput
-          owner={"anonymous"}
-          handleInputChange={this.handleInputChange}
-          handleSendMessage={this.handleSendMessage}
-          inputValue={this.state.inputValue}
-        />
+      <Grid item xs={4} className="justify-content-center">
+        <Grid container className="ChatBox">
+          <MessageList messages={this.props.chatState.messages} />
+          <ChatInput
+            owner={"anonymous"}
+            handleInputChange={this.handleInputChange}
+            handleSendMessage={this.handleSendMessage}
+            inputValue={this.state.inputValue}
+          />
+        </Grid>
       </Grid>
     );
   }
