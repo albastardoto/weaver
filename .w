@@ -1,15 +1,16 @@
-import { Status } from "../../fetch";
 import {
-  ADD_SUGGESTION,
-  DELETE_SUGGESTION,
-  SET_SEARCH_FETCH,
-  SET_SEARCH_SUGGESTIONS,
-  Suggestion,
+  SuggestionState,
   SuggestionActionTypes,
+  ADD_SUGGESTION,
+  SET_SEARCH_SUGGESTIONS,
+  SET_SUGGESTION_FETCH,
+  SET_SEARCH_FETCH,
   UPDATE_SUGGESTION,
+  Suggestion,
 } from "./types";
+import { Status } from "../../fetch";
 
-const initState: any = {
+const initState: SuggestionState = {
   suggestions: [],
   searchState: {
     searchFetchStatus: Status.SUCCESS,
@@ -18,7 +19,7 @@ const initState: any = {
 };
 
 export function suggestionsReducer(
-  state = initState,
+  state: any = initState,
   action: SuggestionActionTypes
 ) {
   switch (action.type) {
@@ -41,24 +42,15 @@ export function suggestionsReducer(
         },
       };
     case UPDATE_SUGGESTION:
-      const suggestions = state.suggestions.map((suggestion: Suggestion) => {
-        if (suggestion.id !== action.payload.id) {
+      return {
+        ...state,
+        suggestions: state.suggestions.map((suggestion: Suggestion) => {
+          if (suggestion.id === action.payload.id) {
+            return action.payload;
+          }
           return suggestion;
-        }
-        return { ...suggestion, ...action.payload };
-      });
-      return {
-        ...state,
-        suggestions,
+        }),
       };
-    case DELETE_SUGGESTION:
-      return {
-        ...state,
-        suggestions: state.suggestions.filter(
-          (sugg: Suggestion) => sugg.id !== action.payload
-        ),
-      };
-
     default:
       return state;
   }

@@ -19,6 +19,7 @@ const ChatInput: FC<ChatInputProps> = (props: ChatInputProps) => {
           autoComplete="off"
           onChange={props.handleInputChange}
           value={props.inputValue}
+          name="chatInputValue"
         />
         <IconButton
           className="ChatButton"

@@ -1,39 +1,37 @@
 import React, { FC } from "react";
 import { SearchSuggestion } from "../../store/room/suggestions/types";
-import { Grid } from "@material-ui/core";
 
 export interface SearchSuggestionsProps {
   searchSuggestions: SearchSuggestion[];
+  inputFocus: boolean;
+  addSuggestion: (suggestion: SearchSuggestion) => void;
 }
 
-const SearchSuggestions: FC<SearchSuggestionsProps> = props => {
+const SearchSuggestions: FC<SearchSuggestionsProps> = (props) => {
+  const classSuffix = props.inputFocus ? " focused" : "";
+  const createTitle = (suggestion: SearchSuggestion) => {
+    return { __html: suggestion.title };
+  };
   return (
-    <div className="SearchSuggestionList">
+    <div className={"SearchSuggestionList" + classSuffix}>
       {props.searchSuggestions.map((suggestion: SearchSuggestion) => {
         return (
-          <Grid
-            key={suggestion.title}
-            item
-            xs={12}
+          <div
+            key={suggestion.thumbnailURL}
             className="SearchSuggestion"
+            onClick={() => {
+              props.addSuggestion(suggestion);
+            }}
           >
-            <Grid
-              container
-              direction="row"
-              justify="flex-start"
-              alignItems="center"
-              spacing={1}
-            >
-              <Grid item>
-                <img srcSet={suggestion.thumbnailURL} />
-              </Grid>
-              <Grid item>
-                <h2 className="SearchSuggestionTitle">
-                  {suggestion.title.substr(0, 40)}
-                </h2>
-              </Grid>
-            </Grid>
-          </Grid>
+            <img
+              alt="search suggestion thumbnail"
+              srcSet={suggestion.thumbnailURL}
+            />
+            <h2
+              className="SearchSuggestionTitle"
+              dangerouslySetInnerHTML={createTitle(suggestion)}
+            ></h2>
+          </div>
         );
       })}
     </div>

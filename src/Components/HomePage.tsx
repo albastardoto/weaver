@@ -80,7 +80,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     createRoom: (code: string) => {
       dispatch(createRoom(code));
-    }
+    },
   };
 };
 const connector = connect(null, mapDispatchToProps);

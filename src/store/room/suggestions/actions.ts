@@ -1,26 +1,39 @@
+import Firebase from "@firebase/firestore-types";
+import firebase from "firebase";
+import config from "../../../config.json";
+import db from "../../../firestore/firestore";
+import { FetchState, Status } from "../../fetch";
+import { AppThunk, store } from "../../store";
 import {
+  ADD_SUGGESTION,
+  DELETE_SUGGESTION,
+  SearchSuggestion,
+  SET_SEARCH_FETCH,
+  SET_SEARCH_SUGGESTIONS,
+  Source,
   Suggestion,
   SuggestionActionTypes,
-  ADD_SUGGESTION,
-  SET_SEARCH_FETCH,
-  SearchSuggestion,
-  SET_SEARCH_SUGGESTIONS
+  UPDATE_SUGGESTION,
+  ActiveSuggestion,
 } from "./types";
-import config from "../../../config.json";
-import { AppThunk } from "../../store";
-import { Status, FetchState } from "../../fetch";
 export function addSuggestion(
   newSuggestion: Suggestion
 ): SuggestionActionTypes {
   return {
     type: ADD_SUGGESTION,
-    payload: newSuggestion
+    payload: newSuggestion,
+  };
+}
+function deleteSuggestion(id: string): SuggestionActionTypes {
+  return {
+    type: DELETE_SUGGESTION,
+    payload: id,
   };
 }
 export function setSearchFetch(state: FetchState): SuggestionActionTypes {
   return {
     type: SET_SEARCH_FETCH,
-    payload: state
+    payload: state,
   };
 }
 
@@ -29,12 +42,20 @@ export function setSearchSuggestions(
 ): SuggestionActionTypes {
   return {
     type: SET_SEARCH_SUGGESTIONS,
-    payload: searchResults
+    payload: searchResults,
+  };
+}
+export function updateSuggestion(
+  newSuggestion: Suggestion
+): SuggestionActionTypes {
+  return {
+    type: UPDATE_SUGGESTION,
+    payload: newSuggestion,
   };
 }
 
 export const getSearchList = (searchString: string): AppThunk<void> => {
-  return async dispatch => {
+  return async (dispatch) => {
     dispatch(setSearchFetch({ status: Status.PENDING }));
     try {
       let baseURL =
@@ -49,7 +70,8 @@ export const getSearchList = (searchString: string): AppThunk<void> => {
       data.items.forEach((element: any) => {
         searchSuggestions.push({
           title: element.snippet.title,
-          thumbnailURL: element.snippet.thumbnails.default.url
+          sourceId: element.id.videoId,
+          thumbnailURL: element.snippet.thumbnails.default.url,
         });
       });
       dispatch(setSearchSuggestions(searchSuggestions));
@@ -58,5 +80,93 @@ export const getSearchList = (searchString: string): AppThunk<void> => {
       dispatch(setSearchFetch({ status: Status.FAIL }));
       console.error(error);
     }
+  };
+};
+export const addToQueue = (suggestion: SearchSuggestion): AppThunk<void> => {
+  return async (dispatch) => {
+    try {
+      db.collection("rooms")
+        .doc(store.getState().roomState.room.code)
+        .collection("suggestions")
+        .add({
+          ...suggestion,
+          active: false,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+export const startSuggestionsListener = (): AppThunk<void> => {
+  return function (dispatch) {
+    db.collection("rooms")
+      .doc(store.getState().roomState.room.code)
+      .collection("suggestions")
+      .onSnapshot((querySnapshot: Firebase.QuerySnapshot) => {
+        querySnapshot
+          .docChanges()
+          .forEach((change: Firebase.DocumentChange) => {
+            if (change.type === "removed") {
+              dispatch(deleteSuggestion(change.doc.id));
+            }
+            if (change.type === "modified" || change.type === "added") {
+              const data = change.doc.data();
+              if (data) {
+                const suggestion = {
+                  source: Source.YOUTUBE,
+                  sourceId: data.sourceId,
+                  likes: data.likes,
+                  id: change.doc.id,
+                  title: data.title,
+                  thumbnailURL: data.thumbnailURL,
+                  timestamp: data.timestamp,
+                  active: data.active,
+                  playing: data.playing,
+                  startTime: data.startTime,
+                  stopTime: data.stopTime,
+                };
+                if (
+                  store
+                    .getState()
+                    .suggestions.suggestions.findIndex(
+                      (suggestion: Suggestion) => {
+                        return suggestion.id === change.doc.id;
+                      }
+                    ) !== -1
+                ) {
+                  dispatch(updateSuggestion(suggestion));
+                } else {
+                  dispatch(addSuggestion(suggestion));
+                }
+              }
+            }
+          });
+      });
+  };
+};
+export const removeFromQueue = (id: string): AppThunk<void> => {
+  return async (dispatch) => {
+    try {
+      db.collection("rooms")
+        .doc(store.getState().roomState.room.code)
+        .collection("suggestions")
+        .doc(id)
+        .delete();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+export const updateActiveSuggestion = (
+  suggestion: Partial<ActiveSuggestion>
+): AppThunk<void> => {
+  return async (dispatch) => {
+    console.log(suggestion.id);
+    db.collection("rooms")
+      .doc(store.getState().roomState.room.code)
+      .collection("suggestions")
+      .doc(suggestion.id)
+      .set(suggestion, { merge: true });
   };
 };

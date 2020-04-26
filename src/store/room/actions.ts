@@ -1,41 +1,37 @@
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import db from "../../firestore/firestore";
-import { RootState, AppThunk } from "../store";
+import { Status } from "../fetch";
+import { AppThunk, RootState } from "../store";
 import {
   FETCH_ROOM,
   Room,
   RoomActionTypes,
   RoomFetchState,
-  SET_ROOM
+  SET_ROOM,
 } from "./types";
-import { Status } from "../fetch";
 
 export function setRoom(room: Room): RoomActionTypes {
   return {
     type: SET_ROOM,
-    payload: room
+    payload: room,
   };
 }
 export function setRoomFetch(fetchState: RoomFetchState): RoomActionTypes {
   return {
     type: FETCH_ROOM,
-    payload: fetchState
+    payload: fetchState,
   };
 }
 export const createRoom = (
   code: string
 ): ThunkAction<void, RootState, unknown, Action<string>> => {
-  return async dispatch => {
+  return async (dispatch) => {
     dispatch(setRoomFetch({ status: Status.PENDING }));
     try {
-      const response = await db
-        .collection("rooms")
-        .doc(code)
-        .set({
-          code: code
-        });
-      console.log(response);
+      const response = await db.collection("rooms").doc(code).set({
+        code: code,
+      });
       dispatch(setRoom({ code, name: code }));
       dispatch(setRoomFetch({ status: Status.SUCCESS }));
     } catch (error) {
@@ -45,13 +41,10 @@ export const createRoom = (
   };
 };
 export const getRoom = (code: string): AppThunk<void> => {
-  return async dispatch => {
+  return async (dispatch) => {
     dispatch(setRoomFetch({ status: Status.PENDING }));
     try {
-      const doc = await db
-        .collection("rooms")
-        .doc(code)
-        .get();
+      const doc = await db.collection("rooms").doc(code).get();
       if (doc.exists) {
         dispatch(setRoom(doc.data));
         dispatch(setRoomFetch({ status: Status.SUCCESS }));

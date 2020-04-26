@@ -1,7 +1,6 @@
 .ChatBox {
   background-color: white;
-  height: 800px;
-  border-radius: 20px;
+  border-radius: 0px 0px 20px 20px;
   padding: 20px 10px;
   max-width: 500px;
   margin: 0 auto;
@@ -26,6 +25,8 @@
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #555;
+  display:flex;
+  flex-direction:column;
 }
 .ChatInput {
   display: inline-flex;
@@ -40,9 +41,37 @@
 }
 .ChatMessage {
   color: black !important;
+  display:inline-block;
+  padding:0px 3px; 
+  border-radius:10px;
+  width:auto;
+  background:#F1F0F0;
+  vertical-align:center;
 }
 .ChatList {
   overflow: auto;
-  height: 700px;
   width: 100%;
+  flex:1;
+}
+.MessageItem{
+  color:black;
+  float:left;
+}
+.ChatMessage h3{
+  font-size:1.5em;
+  
+}
+.MessageItem h5{
+  font-size:.8em;
+  color:#B2AAA9;
+}
+.MessageItem.currentUser{
+  float:right;
+}
+.MessageItem.currentUser .ChatMessage{
+  background:#5AB9FF;
+}
+.MessageRow{
+  width:100%;
+  display:inline-block;
 }
